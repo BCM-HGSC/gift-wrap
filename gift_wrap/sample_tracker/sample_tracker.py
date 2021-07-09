@@ -28,7 +28,7 @@ class SampleTracker:
         """
         Submits a record to Sample Tracker.
         """
-        logger.info(f"Uploading sample({record['samplename']}) to Sample Tracker")
+        logger.info(f"Uploading sample to Sample Tracker")
         json_record = json.dumps(record, default=str)
         try:
             response = http.post(URL, data=json_record, headers=self.headers)
