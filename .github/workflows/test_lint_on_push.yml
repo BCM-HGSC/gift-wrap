@@ -11,6 +11,9 @@ jobs:
         python-version: [3.8, 3.9]
     environment:
       name: TEST
+    env:
+      SAMPLE_TRACKER_TOKEN: ${{ secrets.SAMPLE_TRACKER_TOKEN }}
+      SAMPLE_TRACKER_URL: ${{ secrets.SAMPLE_TRACKER_URL }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
