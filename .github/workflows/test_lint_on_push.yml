@@ -1,10 +1,15 @@
 name: Linting and Running Tests
 
-on: [workflow_dispatch]
-
+on:
+  pull_request:
+    paths-ignore:
+      - pyproject.toml
+      - '**.md'
 jobs:
   build:
     name: Linting and Running Test
+    # Run older version of ubuntu due to Sample Tracker
+    # https://askubuntu.com/questions/1231844/ssl-sslerror-ssl-dh-key-too-small-dh-key-too-small-ssl-c1108
     runs-on: ubuntu-18.04
     strategy:
       matrix:
