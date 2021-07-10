@@ -13,6 +13,7 @@ requests = { version = "^2.25.1", optional = true }
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^21.6b0"
+flake8 = "^3.9.2"
 
 [tool.poetry.extras]
 sample_tracker = [
