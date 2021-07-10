@@ -9,7 +9,8 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9]
-    environment: TEST
+    environment:
+      name: TEST
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -36,5 +37,6 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
+          env
           source $VIRTUAL_ENV/bin/activate
           pytest
