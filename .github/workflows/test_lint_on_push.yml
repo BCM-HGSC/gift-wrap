@@ -5,6 +5,10 @@ on:
     paths-ignore:
       - pyproject.toml
       - '**.md'
+    branches:
+      - main
+      - develop
+      - 'release/**'
 jobs:
   build:
     name: Linting and Running Test
