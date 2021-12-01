@@ -8,8 +8,8 @@ from typing import Dict, List
 
 from tenacity import retry, wait_fixed, stop_after_attempt
 
-from hgsc.type_defs import APIResponseTypeDef
-from hgsc.webservice import WebService
+from gift_wrap.hgsc.type_defs import APIResponseTypeDef
+from gift_wrap.hgsc.webservice import WebService
 
 
 logger = logging.getLogger(__name__)

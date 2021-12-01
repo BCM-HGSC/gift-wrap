@@ -3,10 +3,11 @@ import logging
 import json
 from typing import Dict, Any
 
-from hgsc.exceptions import HGSCWebServiceError
-from hgsc.type_defs import APIResponseTypeDef
-
 import requests
+
+from gift_wrap.hgsc.exceptions import HGSCWebServiceError
+from gift_wrap.hgsc.type_defs import APIResponseTypeDef
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class WebService:
         response = response.json()
         if response["success"] is False:
             raise HGSCWebServiceError(
-                response=response["Content"], service=self.__class__.__name__
+                response=response["content"], service=self.__class__.__name__
             )
         return response
 

@@ -1,10 +1,10 @@
 """Wrapper around sample_tracker."""
 import logging
-from hgsc.webservice import WebService
 
 from tenacity import retry, wait_fixed, stop_after_attempt
 
 from .type_defs import APIResponseTypeDef
+from .webservice import WebService
 
 
 logger = logging.getLogger(__name__)

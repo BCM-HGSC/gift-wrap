@@ -5,10 +5,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 
-from gift_wrap.hgsc.sample_tracker import (
-    SampleTracker,
-    SampleFailedUpload,
-)
+from gift_wrap.hgsc.sample_tracker import SampleTracker
+from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 
 
 @pytest.fixture(name="sample_tracker")
@@ -37,7 +35,7 @@ def test_sampletracker_post_fail_httperror(sample_tracker: SampleTracker):
     """Test that if sample tracker fails to post, a SampleFailedUpload exception
     is raised"""
     sample_tracker.url += "fake"
-    with pytest.raises(SampleFailedUpload) as exc_info:
+    with pytest.raises(HGSCWebServiceError):
         sample_tracker.post(
             sample_name="fake-sample",
             biobank_id="fake-biobank-id",
@@ -46,7 +44,7 @@ def test_sampletracker_post_fail_httperror(sample_tracker: SampleTracker):
         )
 
 
-@patch("gift_wrap.hgsc.sample_tracker.requests.post")
+@patch("gift_wrap.hgsc.webservice.requests.post")
 def test_sampletracker_post_fail_response(
     mock_requests: MagicMock, sample_tracker: SampleTracker
 ):
@@ -66,14 +64,15 @@ def test_sampletracker_post_fail_response(
             return self.json_data
 
     mock_requests.return_value = MockResponse(response, 200)
-    with pytest.raises(SampleFailedUpload) as exc_info:
+    with pytest.raises(HGSCWebServiceError) as exc_info:
         sample_tracker.post(
             sample_name="fake-sample",
             biobank_id="fake-biobank-id",
             project="gift-wrap-test",
             state_key="TEST",
         )
-    assert "Failed for some reason" in str(exc_info.value)
+    assert "Failed for some reason" in str(exc_info.value.response)
+    assert "SampleTracker" in str(exc_info.value.service)
 
 
 # def test_get_transformed_record():
