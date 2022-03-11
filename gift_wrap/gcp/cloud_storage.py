@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 60
 
 
-class GCPClient(CloudService):
+class StorageClient(CloudService):
     """Wrapper for GCP Client"""
 
     def __init__(self, bucket_name: str, credentials_file: str) -> None:
@@ -85,5 +85,5 @@ def fix_prefix(prefix):
     """
     prefix = str(prefix)
     if prefix[-1] != "/":
-        return prefix + "/"
+        return f'{prefix}/'
     return prefix
