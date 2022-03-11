@@ -1,8 +1,8 @@
 """Test for sample_tracker.py"""
 import os
+from unittest.mock import patch, MagicMock
 
 import pytest
-from unittest.mock import patch, MagicMock
 
 
 from gift_wrap.hgsc.sample_tracker import SampleTracker
@@ -44,7 +44,7 @@ def test_sampletracker_post_fail_httperror(sample_tracker: SampleTracker):
         )
 
 
-@patch("gift_wrap.hgsc.webservice.requests.post")
+@patch("gift_wrap.hgsc.webservice.http.post")
 def test_sampletracker_post_fail_response(
     mock_requests: MagicMock, sample_tracker: SampleTracker
 ):
@@ -53,14 +53,13 @@ def test_sampletracker_post_fail_response(
     response = {"success": False, "content": "Failed for some reason"}
 
     class MockResponse:
+        """Mock Response"""
         def __init__(self, response, status_code):
             self.json_data = response
             self.status_code = status_code
 
-        def raise_for_status(self):
-            pass
-
         def json(self):
+            """Json Data"""
             return self.json_data
 
     mock_requests.return_value = MockResponse(response, 200)
