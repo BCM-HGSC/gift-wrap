@@ -14,9 +14,7 @@ INPUT_FILE_NAME = "test_file.txt"
 def fixture_bucket_name(pytestconfig):
     """Returns the GCP bucket name. Prefers the given one by command line if
     looks in env"""
-    bucket_name = pytestconfig.getoption("gcp_bucket", default=None) or os.environ.get(
-        "GCP_BUCKET_NAME"
-    )
+    bucket_name = pytestconfig.getoption("gcp_bucket")
     if not bucket_name:
         raise ValueError(
             "Missing GCP bucket name. Pass it by command line or have in .env"
@@ -39,7 +37,9 @@ def fixture_gcp_client(bucket_name: str, prefix: str):
 
 
 @pytest.fixture(name="populated_gcp_client")
-def fixture_populated_gcp_client(gcp_client: StorageClient, prefix: str, tmp_path: Path):
+def fixture_populated_gcp_client(
+    gcp_client: StorageClient, prefix: str, tmp_path: Path
+):
     """
     A fixture that will populate the gcp client with one file.
     """
@@ -74,12 +74,14 @@ def test_storageclient_list_files(populated_gcp_client: StorageClient, prefix: s
     assert len(results) == 1
 
 
-def test_storageclient_upload_file(gcp_client: StorageClient, prefix: str, tmp_path: Path):
+def test_storageclient_upload_file(
+    gcp_client: StorageClient, prefix: str, tmp_path: Path
+):
     """Test that a file is successfully uploaded"""
     input_file = tmp_path / "gift-wrap-input.txt"
     input_file.write_text("Tests file")
-    upload_dir = f'{prefix}/upload-test'
-    destination = f'{upload_dir}/gift_wrap-input.txt'
+    upload_dir = f"{prefix}/upload-test"
+    destination = f"{upload_dir}/gift_wrap-input.txt"
     gcp_client.upload_file(input_file, destination)
     results = list(gcp_client.list_files(upload_dir))
     assert len(results) == 1
