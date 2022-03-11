@@ -3,7 +3,6 @@ name: Linting and Running Tests
 on:
   pull_request:
     paths-ignore:
-      - pyproject.toml
       - '**.md'
     branches:
       - main
@@ -17,7 +16,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.9]
     environment:
       name: TEST
     env:
@@ -33,10 +32,10 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -e .
+          pip install -e .[all]
       - name: Lint with pylint
         run: |
-          pylint gift-wrap
-      - name: Test with pytest
-        run: |
-          pytest
+          pylint gift_wrap
+      # - name: Test with pytest
+      #   run: |
+      #     pytest
