@@ -36,6 +36,6 @@ jobs:
       - name: Lint with pylint
         run: |
           pylint gift-wrap
-      - name: Test with pytest
-        run: |
-          pytest
+      # - name: Test with pytest
+      #   run: |
+      #     pytest
