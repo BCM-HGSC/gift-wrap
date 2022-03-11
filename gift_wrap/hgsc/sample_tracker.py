@@ -1,8 +1,6 @@
 """Wrapper around sample_tracker."""
 import logging
 
-from tenacity import retry, wait_fixed, stop_after_attempt
-
 from .type_defs import APIResponseTypeDef
 from .webservice import WebService
 
@@ -13,7 +11,6 @@ logger = logging.getLogger(__name__)
 class SampleTracker(WebService):
     """Wrapper for Sample Tracker"""
 
-    @retry(reraise=True, wait=wait_fixed(5), stop=stop_after_attempt(3))
     def post(
         self, sample_name: str, biobank_id: str, project: str, state_key: str, **kwargs
     ) -> APIResponseTypeDef:

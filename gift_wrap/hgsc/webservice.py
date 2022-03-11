@@ -3,8 +3,9 @@ import logging
 import json
 from typing import Dict, Any
 
-import requests
+from requests.exceptions import HTTPError
 
+from gift_wrap.utils.http import http
 from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 from gift_wrap.hgsc.type_defs import APIResponseTypeDef
 
@@ -28,9 +29,8 @@ class WebService:
         """Post to HGSC endpoint"""
         data = json.dumps(record, default=str)
         try:
-            response = requests.post(self.url, data=data, headers=self.headers)
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as err:
+            response = http.post(self.url, data=data, headers=self.headers)
+        except HTTPError as err:
             error = err.response.text or err
             logger.error(error)
             raise HGSCWebServiceError(
