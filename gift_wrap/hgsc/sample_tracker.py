@@ -1,6 +1,8 @@
 """Wrapper around sample_tracker."""
 import logging
 
+from gift_wrap.hgsc.exceptions import HGSCWebServiceError
+
 from .type_defs import APIResponseTypeDef
 from .webservice import WebService
 
@@ -12,19 +14,27 @@ class SampleTracker(WebService):
     """Wrapper for Sample Tracker"""
 
     def post(
-        self, sample_name: str, biobank_id: str, project: str, state_key: str, **kwargs
+        self,
+        wgs_sample_internal_id: str,
+        biobank_id: str,
+        project: str,
+        state_key: str,
+        **kwargs
     ) -> APIResponseTypeDef:
         """Post to SampleTracker"""
-        logger.info("Uploading sample(%s) to Sample Tracker", sample_name)
+        logger.info("Uploading sample(%s) to Sample Tracker", wgs_sample_internal_id)
+        url = self.base_url / "upsertkudusampletracking"
         record = {
             "biobankid": biobank_id,
             "project": project,
-            "samplename": sample_name,
+            "samplename": wgs_sample_internal_id,
             "statekey": state_key,
             **kwargs,
         }
-        return self._post(record)
-
+        response = self._post(url, record)
+        if response["success"] is False:
+            raise HGSCWebServiceError(response["content"], __class__.__name__, "POST")
+        return response["content"]
 
 # def get_transformed_record(record):
 #     """

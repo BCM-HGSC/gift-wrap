@@ -8,4 +8,5 @@ class HGSCWebServiceError(Exception):
 
     response: str
     service: str
-    message: str = "Unable to post to the HGSC web service."
+    method: str
+    message: str = "Error using the HGSC web service."
