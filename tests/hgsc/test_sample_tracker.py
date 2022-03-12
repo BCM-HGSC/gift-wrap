@@ -1,6 +1,5 @@
 """Test for sample_tracker.py"""
 import os
-from random import sample
 from unittest.mock import patch, MagicMock
 
 import pytest
