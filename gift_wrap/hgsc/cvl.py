@@ -25,7 +25,7 @@ class CVLAPI(WebService):
             "projection_expression": "wgs_sample_internal_id",
             "filter_expression": {"wgs_sample_external_id": wgs_sample_external_id},
         }
-        response = self._get(url, data)
+        response = self._get(url, data=data)
         if response["success"] is False:
             raise HGSCWebServiceError(
                 response["content"], service=__class__.__name__, method="GET"
@@ -58,4 +58,4 @@ class CVLAPI(WebService):
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
             "data": records,
         }
-        return self._post(url, data)
+        return self._post(url, data=data)
