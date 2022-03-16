@@ -8,7 +8,7 @@ from mypy_boto3_s3.service_resource import ObjectSummary
 from botocore.config import Config
 from yarl import URL
 
-from ..cloud_service import CloudService
+from gift_wrap.utils.cloud_service import CloudService
 
 logger = logging.getLogger(__name__)
 

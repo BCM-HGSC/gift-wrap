@@ -5,7 +5,7 @@ from typing import Iterator
 
 from google.cloud import storage
 
-from gift_wrap.cloud_service import CloudService
+from gift_wrap.utils.cloud_service import CloudService
 
 logger = logging.getLogger(__name__)
 
@@ -85,5 +85,5 @@ def fix_prefix(prefix):
     """
     prefix = str(prefix)
     if prefix[-1] != "/":
-        return f'{prefix}/'
+        return f"{prefix}/"
     return prefix
