@@ -4,7 +4,6 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List
 from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 
 from gift_wrap.hgsc.type_defs import APIResponseTypeDef
@@ -19,7 +18,7 @@ class CVLAPI(WebService):
 
     def get_wgs_sample_internal_id(self, wgs_sample_external_id: str) -> str:
         """Given the wgs_sample_external_id, grabs the wgs_sample_internal_id"""
-        logger.info("%s: Grabing wgs_sample_internal_id", wgs_sample_external_id)
+        logger.info("%s: Getting wgs_sample_internal_id", wgs_sample_external_id)
         url = self.base_url / "getDynamodbAouData"
         data = {
             "projection_expression": "wgs_sample_internal_id",
@@ -44,18 +43,16 @@ class CVLAPI(WebService):
                 method="GET",
                 message=f"Multiple wgs_sample_internal_ids were returned for {wgs_sample_external_id}",
             )
-        return response["content"]
+        return response["content"][0]["wgs_sample_internal_id"]
 
-    def post_manifest(
-        self, manifest_type: str, s3_path: str, records: List[Dict[str, str]]
-    ) -> APIResponseTypeDef:
+    def post(self, manifest_type: str, s3_path: str, **kwargs) -> APIResponseTypeDef:
         """Post to the CVL webservice"""
         logger.info("Submitting to CVL Webservice...")
         url = self.base_url / "putBatchAouData2Dynamodb"
         data = {
             "manifest_name": manifest_type.lower(),
-            "s3_location": s3_path,
+            "file_s3_location": s3_path,
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
-            "data": records,
+            **kwargs,
         }
-        return self._post(url, data=data)
+        return self._post(url, json=data)
