@@ -1,10 +1,14 @@
 """ Generic class for an HGSC web service to inherit """
+from distutils.util import strtobool
 import logging
 import json
-from typing import Dict, Any
+from typing import Optional, Union
 
-import requests
+from requests.exceptions import HTTPError
 
+import yarl
+
+from gift_wrap.utils.http import http
 from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 from gift_wrap.hgsc.type_defs import APIResponseTypeDef
 
@@ -15,34 +19,54 @@ logger = logging.getLogger(__name__)
 class WebService:
     """Generic wrapper for HGSC Web Services"""
 
-    def __init__(self, token: str, url: str, verify_ssl: bool = True):
+    def __init__(
+        self, token: str, base_url: str, verify_ssl: Optional[Union[str, bool]] = True
+    ):
         self.headers = {
             "Accept": "application/json",
-            "Content-type": "application/json",
+            "Accept-Enconding": "gzip, deflate, br",
+            "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
-        self.url = url
+        self.base_url = yarl.URL(base_url)
         self.verify_ssl = verify_ssl
+        if isinstance(self.verify_ssl, str) and self.verify_ssl.lower() in [
+            "true",
+            "false",
+        ]:
+            self.verify_ssl = bool(strtobool(self.verify_ssl))
 
-    def _post(self, record: Dict[str, Any]) -> APIResponseTypeDef:
-        """Post to HGSC endpoint"""
-        data = json.dumps(record, default=str)
+    def _get(self, url: str, **kwargs):
+        """Get to HGSC endpoint"""
+        logger.debug("GET to %s", url)
+        if "data" in kwargs:
+            kwargs["data"] = json.dumps(kwargs["data"], default=str)
         try:
-            response = requests.post(self.url, data=data, headers=self.headers)
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            error = err.response.text or err
-            logger.error(error)
-            raise HGSCWebServiceError(
-                response=error, service=self.__class__.__name__
-            ) from err
-        # In the off chance an error occured but returns 200
-        response = response.json()
-        if response["success"] is False:
-            raise HGSCWebServiceError(
-                response=response["content"], service=self.__class__.__name__
+            response = http.get(
+                url, headers=self.headers, verify=self.verify_ssl, **kwargs
             )
-        return response
+        except HTTPError as err:
+            raise_hgscwebserviceerror(self.__class__.__name__, err, "GET")
+        return response.json()
+
+    def _post(self, url: str, **kwargs) -> APIResponseTypeDef:
+        """Post to HGSC endpoint"""
+        try:
+            response = http.post(
+                url, headers=self.headers, verify=self.verify_ssl, **kwargs
+            )
+        except HTTPError as err:
+            raise_hgscwebserviceerror(self.__class__.__name__, err, "POST")
+        return response.json()
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(url: {self.url})"
+        return f"{self.__class__.__name__}(url: {self.base_url})"
+
+
+def raise_hgscwebserviceerror(class_name: str, err, method: str) -> None:
+    """Raises an HGSCWebServiceError when a HTTPError is returned"""
+    error = err.response.text or err
+    logger.error(error)
+    raise HGSCWebServiceError(
+        response=error, method=method, service=class_name
+    ) from err

@@ -1,2 +1,2 @@
-""" Import GCPClient to avoid gift-wrap.gcp.gcp.GCPClient"""
-from .gcp import GCPClient
+""" Import StorageClient to avoid gift-wrap.gcp.cloud_storage.StorageClient"""
+from .cloud_storage import StorageClient
