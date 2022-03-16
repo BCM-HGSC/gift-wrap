@@ -1,11 +1,11 @@
 from requests import Session
-from requests.adapters import HTTPAdapter # pylint: disable=unused-import
+from requests.adapters import HTTPAdapter  # pylint: disable=unused-import
 from urllib3.util.retry import Retry
 
 
 DEFAULT_TIMEOUT = 5  # seconds
 
-STATUS_TO_RETRY_ON = [429, 500, 502, 503, 405]
+STATUS_TO_RETRY_ON = [429, 502, 503, 405]
 
 TOTAL_RETRIES = 3
 
@@ -22,6 +22,7 @@ class TimeoutHTTPAdapter(HTTPAdapter):
             del kwargs["timeout"]
         super().__init__(*args, **kwargs)
 
+    # pylint: disable=too-many-arguments
     def send(
         self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
     ):

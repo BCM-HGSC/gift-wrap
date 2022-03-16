@@ -24,7 +24,8 @@ class WebService:
     ):
         self.headers = {
             "Accept": "application/json",
-            "Content-type": "application/json",
+            "Accept-Enconding": "gzip, deflate, br",
+            "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
         self.base_url = yarl.URL(base_url)
@@ -50,8 +51,6 @@ class WebService:
 
     def _post(self, url: str, **kwargs) -> APIResponseTypeDef:
         """Post to HGSC endpoint"""
-        if "data" in kwargs:
-            kwargs["data"] = json.dumps(kwargs["data"], default=str)
         try:
             response = http.post(
                 url, headers=self.headers, verify=self.verify_ssl, **kwargs
