@@ -31,7 +31,7 @@ class SampleTracker(WebService):
             "statekey": state_key,
             **kwargs,
         }
-        response = self._post(url, data=record)
+        response = self._post(url, json=record)
         if response["success"] is False:
             raise HGSCWebServiceError(response["content"], __class__.__name__, "POST")
         return response["content"]
