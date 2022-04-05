@@ -1,7 +1,13 @@
+from collections import defaultdict
 import logging
+from typing import DefaultDict, Set
 
 from gift_wrap.hgsc.webservice import WebService
-from gift_wrap.hgsc.exceptions import ExemplarWGSInternalIDInvalid, HGSCWebServiceError
+from gift_wrap.hgsc.exceptions import (
+    ExemplarWGSInternalIDMissing,
+    ExemplarMultipleWGSInternalIDs,
+    HGSCWebServiceError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,21 +26,36 @@ class ExemplarAPI(WebService):
         super().__init__(token, base_url, verify_ssl)
         self.headers = {"Auth-Code": token}
 
-    def get_wgs_sample_internal_id(self, wgs_sample_external_id: str) -> str:
-        """Given the wgs_sample_external_id, returns the wgs_sample_internal_id"""
+    def get_wgs_sample_internal_ids(
+        self, wgs_sample_external_ids: Set
+    ) -> DefaultDict(Set):
+        """Given the wgs_sample_external_id, returns a mapping of wgs_sample_internal_ids wgs_sample_internal_id"""
         logger.info("Getting wgs_sample_internal_id...")
-        url = self.base_url / "thresholdCriteriaMet"
-        response = self._get(
-            url, params={"wgs_sample_external_id": wgs_sample_external_id}
-        )
-        wgs_sample_internal_id = response["lims_id"]
-        if not wgs_sample_internal_id or len(wgs_sample_internal_id) > 1:
-            raise ExemplarWGSInternalIDInvalid(
-                INVALID_INTERNAL_ID_MSG.format(
-                    wgs_sample_external_id=wgs_sample_external_id,
-                    wgs_sample_internal_id=wgs_sample_internal_id,
-                )
+        url = self.base_url / "qcCompletionByCollaboratorSampleId"
+        response = self._get(url, params={"sampleId": wgs_sample_external_ids})
+        result = defaultdict(set)
+        for sample in response["qcCompletionBySampleIdInfo"]:
+            wgs_sample_external_id = sample["collaborator_sample_id"]
+            qc_info_list = sample["qcCompletionInfo"]
+            for sample_qc in qc_info_list:
+                result[wgs_sample_external_id].add(sample_qc["lims_id"])
+        if len(result.keys()) != len(wgs_sample_external_ids):
+            missing = wgs_sample_external_ids - set(result.keys())
+            logger.error(
+                "Not all samples returned wgs_sample_internal_ids! %s", missing
             )
+            raise ExemplarWGSInternalIDMissing(samples=missing)
+        if multiple_ids := {
+            external_id
+            for external_id, internal_ids in result.items()
+            if len(internal_ids) > 1
+        }:
+            logger.error(
+                "Multiple unique wgs_sample_internal_ids were returned. %s",
+                multiple_ids,
+            )
+            raise ExemplarMultipleWGSInternalIDs(samples=multiple_ids)
+        return result
 
     def get_drc_ready_samples(self):
         """Returns a list of records that represent samples ready to be
