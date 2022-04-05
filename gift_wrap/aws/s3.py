@@ -10,6 +10,7 @@ from yarl import URL
 
 from gift_wrap.utils.cloud_service import CloudService
 from .constants import PROFILE_NAME
+from .exceptions import NotAnS3Uri
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class S3Resource(CloudService):
     def __init__(self, bucket_name: str) -> None:
         config = Config(retries={"mode": "standard"})
         self.bucket_name = bucket_name
-        print(PROFILE_NAME)
+
         self.resource = boto3.Session(profile_name=PROFILE_NAME).resource(
             "s3", config=config
         )
@@ -94,7 +95,7 @@ class S3Resource(CloudService):
         logger.info("S3: Uploading directory %s...", dir_path)
         for file in dir_path.rglob("*"):
             if file.is_file():
-                file_name = prefix + f"/{dir_path.stem}/" + file.name
+                file_name = f"{prefix}/{dir_path.stem}/{file.name}"
                 self.upload_file(
                     str(file),
                     file_name,
@@ -113,7 +114,7 @@ def get_bucket_and_key_from_s3uri(uri: str) -> Tuple[str, str]:
     """
     uri = URL(uri)
     if uri.scheme != "s3":
-        raise Exception("string is not expected s3")
+        raise NotAnS3Uri("string is not expected s3")
     return uri.host, uri.raw_path[1:]
 
 
