@@ -7,9 +7,9 @@ import boto3
 from mypy_boto3_s3.service_resource import ObjectSummary
 from botocore.config import Config
 from yarl import URL
+from gift_wrap.aws.utils import get_session_kwargs
 
 from gift_wrap.utils.cloud_service import CloudService
-from .constants import PROFILE_NAME
 from .exceptions import NotAnS3Uri
 
 logger = logging.getLogger(__name__)
@@ -21,10 +21,8 @@ class S3Resource(CloudService):
     def __init__(self, bucket_name: str) -> None:
         config = Config(retries={"mode": "standard"})
         self.bucket_name = bucket_name
-
-        self.resource = boto3.Session(profile_name=PROFILE_NAME).resource(
-            "s3", config=config
-        )
+        kwargs = get_session_kwargs()
+        self.resource = boto3.Session(**kwargs).resource("s3", config=config)
 
     def delete_file(self, remote_file: str) -> None:
         """
