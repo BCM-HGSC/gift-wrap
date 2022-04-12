@@ -1,5 +1,6 @@
 """Wrapper around sample_tracker."""
 import logging
+import json
 
 from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 
@@ -31,7 +32,7 @@ class SampleTracker(WebService):
             "statekey": state_key,
             **kwargs,
         }
-        response = self._post(url, json=record)
+        response = self._post(url, data=json.dumps(record, default=str))
         if response["success"] is False:
             raise HGSCWebServiceError(response["content"], __class__.__name__, "POST")
         return response["content"]

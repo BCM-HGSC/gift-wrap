@@ -4,8 +4,12 @@
 
 import logging
 from datetime import datetime, timezone
-from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 
+from gift_wrap.hgsc.exceptions import (
+    CVLAPIIssuesGettingInternalID,
+    CVLAPIMultipleWGSInternalIDs,
+    HGSCWebServiceError,
+)
 from gift_wrap.hgsc.type_defs import APIResponseTypeDef
 from gift_wrap.hgsc.webservice import WebService
 
@@ -30,17 +34,13 @@ class CVLAPI(WebService):
                 response["content"], service=__class__.__name__, method="GET"
             )
         if not response["content"]:
-            raise HGSCWebServiceError(
-                response["content"],
-                service=__class__.__name__,
-                method="GET",
+            raise CVLAPIIssuesGettingInternalID(
+                wgs_sample_external_id=wgs_sample_external_id,
                 message=f"No wgs_sample_internal_id was returned for {wgs_sample_external_id}",
             )
         if len(response["content"]) > 1:
-            raise HGSCWebServiceError(
-                response["content"],
-                service=__class__.__name__,
-                method="GET",
+            raise CVLAPIMultipleWGSInternalIDs(
+                wgs_sample_external_id=wgs_sample_external_id,
                 message=f"Multiple wgs_sample_internal_ids were returned for {wgs_sample_external_id}",
             )
         return response["content"][0]["wgs_sample_internal_id"]
