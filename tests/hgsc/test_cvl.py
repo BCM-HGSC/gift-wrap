@@ -46,7 +46,8 @@ def test_cvlapi_post_hdr(cvl_api: CVLAPI):
     assert response == {"success": True, "content": "Upload success"}
 
 
-def test_cvlapi_post_w1il(cvl_api: CVLAPI):
+@pytest.mark.xfail(reason="Not implemented in CVL_API yet")
+def test_cvlapi_post_w1il_hdr(cvl_api: CVLAPI):
     """Test posting a bare minimum W1IL record succeds"""
     data = {
         "biobank_id": "test-biobank-id-001",
@@ -62,11 +63,34 @@ def test_cvlapi_post_w1il(cvl_api: CVLAPI):
         "consent_for_gror": "Y",
         "genome_type": "test",
         "informing_loop_hdr": "Y",
+        "aou_hdr_coverage": "test",
+        "contamination": "test",
+    }
+    response = cvl_api.post("W1IL_HDR", "s3://fake/s3/path", data=[data])
+    assert response == {"success": True, "content": "Upload success"}
+
+
+@pytest.mark.xfail(reason="Not implemented in CVL_API yet")
+def test_cvlapi_post_w1il_pgx(cvl_api: CVLAPI):
+    """Test posting a bare minimum W1IL record succeds"""
+    data = {
+        "biobank_id": "test-biobank-id-001",
+        "wgs_sample_external_id": "test-wgs_sample_external_id-001",
+        "wgs_sample_internal_id": "test-wgs_sample_internal_id-001",
+        "vcf_raw_path": "some-vcf_raw_path",
+        "vcf_raw_index_path": "some-vcf_raw_index_path",
+        "vcf_raw_md5_path": "some-vcf_raw_md5_path",
+        "cram_name": "some-cram_name",
+        "sex_at_birth": "F",
+        "ny_flag": "Y",
+        "genome_center": "BCM",
+        "consent_for_gror": "Y",
+        "genome_type": "test",
         "informing_loop_pgx": "Y",
         "aou_hdr_coverage": "test",
         "contamination": "test",
     }
-    response = cvl_api.post("W1IL", "s3://fake/s3/path", data=[data])
+    response = cvl_api.post("W1IL_PGX", "s3://fake/s3/path", data=[data])
     assert response == {"success": True, "content": "Upload success"}
 
 
@@ -174,8 +198,23 @@ def test_cvlapi_post_w3sc(cvl_api: CVLAPI):
     assert response == {"success": True, "content": "Upload success"}
 
 
-def test_cvlapi_post_w4wr(cvl_api: CVLAPI):
-    """Test postin a bare minimum W4WR file"""
+@pytest.mark.xfail(reason="Not implemented in CVL_API yet")
+def test_cvlapi_post_w4wr_hdr(cvl_api: CVLAPI):
+    """Test postin a bare minimum W4WR_PGX file"""
+    data = {
+        "biobank_id": "test-biobank_id-001",
+        "wgs_sample_internal_id": "test-wgs_sample_internal_id-001",
+        "wgs_sample_external_id": "test-wgs_sample_external_id-001",
+        "health_related_data_file_name": "test-health_related_data_file_name-001",
+        "clinical_analysis_type": "HDRV1",
+    }
+    response = cvl_api.post("W4WR_HDR", "s3://fake/s3/path", data=[data])
+    assert response == {"success": True, "content": "Upload success"}
+
+
+@pytest.mark.xfail(reason="Not implemented in CVL_API yet")
+def test_cvlapi_post_w4wr_pgx(cvl_api: CVLAPI):
+    """Test postin a bare minimum W4WR_PGX file"""
     data = {
         "biobank_id": "test-biobank_id-001",
         "wgs_sample_internal_id": "test-wgs_sample_internal_id-001",
@@ -183,7 +222,7 @@ def test_cvlapi_post_w4wr(cvl_api: CVLAPI):
         "health_related_data_file_name": "test-health_related_data_file_name-001",
         "clinical_analysis_type": "PGXV1",
     }
-    response = cvl_api.post("W4WR", "s3://fake/s3/path", data=[data])
+    response = cvl_api.post("W4WR_PGX", "s3://fake/s3/path", data=[data])
     assert response == {"success": True, "content": "Upload success"}
 
 

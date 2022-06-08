@@ -3,13 +3,13 @@ from requests.adapters import HTTPAdapter  # pylint: disable=unused-import
 from urllib3.util.retry import Retry
 
 
-DEFAULT_TIMEOUT = 5  # seconds
+DEFAULT_TIMEOUT = 10  # seconds
 
 STATUS_TO_RETRY_ON = [429, 502, 503, 405]
 
 TOTAL_RETRIES = 3
 
-BACKOFF_FACTOR = 1  # seconds
+BACKOFF_FACTOR = 2  # seconds
 
 
 class TimeoutHTTPAdapter(HTTPAdapter):

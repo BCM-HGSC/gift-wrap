@@ -5,15 +5,18 @@ from typing import Dict
 import boto3
 from botocore.config import Config
 
+from gift_wrap.aws.utils import get_session_kwargs
+
 logger = logging.getLogger(__name__)
 
 
 class DynamoDBResource:
-    """Wrapper aroudn DynamoDBResource"""
+    """Wrapper around DynamoDBResource"""
 
     def __init__(self, table_name: str) -> None:
         config = Config(retries={"mode": "standard"})
-        dynamodb = boto3.Session().resource("dynamodb", config=config)
+        kwargs = get_session_kwargs()
+        dynamodb = boto3.Session(**kwargs).resource("dynamodb", config=config)
         self.table = dynamodb.Table(table_name)
 
     def get_item(self, key: Dict):

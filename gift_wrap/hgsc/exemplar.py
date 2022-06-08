@@ -1,7 +1,12 @@
+from collections import defaultdict
 import logging
+from typing import DefaultDict, List, Set
 
 from gift_wrap.hgsc.webservice import WebService
-from gift_wrap.hgsc.exceptions import ExemplarWGSInternalIDInvalid, HGSCWebServiceError
+from gift_wrap.hgsc.exceptions import (
+    ExemplarWGSInternalIDMissing,
+    HGSCWebServiceError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,28 +25,32 @@ class ExemplarAPI(WebService):
         super().__init__(token, base_url, verify_ssl)
         self.headers = {"Auth-Code": token}
 
-    def get_wgs_sample_internal_id(self, wgs_sample_external_id: str) -> str:
-        """Given the wgs_sample_external_id, returns the wgs_sample_internal_id"""
+    def get_wgs_sample_internal_ids(
+        self, wgs_sample_external_ids: List[str]
+    ) -> DefaultDict(Set):
+        """Given the wgs_sample_external_id, returns a mapping of wgs_sample_internal_ids wgs_sample_internal_id"""
         logger.info("Getting wgs_sample_internal_id...")
-        url = self.base_url / "thresholdCriteriaMet"
-        response = self._get(
-            url, params={"wgs_sample_external_id": wgs_sample_external_id}
-        )
-        wgs_sample_internal_id = response["lims_id"]
-        if not wgs_sample_internal_id or len(wgs_sample_internal_id) > 1:
-            raise ExemplarWGSInternalIDInvalid(
-                INVALID_INTERNAL_ID_MSG.format(
-                    wgs_sample_external_id=wgs_sample_external_id,
-                    wgs_sample_internal_id=wgs_sample_internal_id,
-                )
+        url = self.base_url / "sampleservice/sampleInfoByCollaboratorSampleId"
+        data = {"sample_ids": wgs_sample_external_ids}
+        response = self._post(url, json=data)
+        result = defaultdict(set)
+        for sample in response["sampleInfo"]:
+            wgs_sample_external_id = sample["sample_external_id"]
+            result[wgs_sample_external_id] = {sample["sample_internal_id"]}
+        if len(result.keys()) != len(wgs_sample_external_ids):
+            missing = set(wgs_sample_external_ids) - set(result.keys())
+            logger.error(
+                "Not all samples returned wgs_sample_internal_ids! %s", missing
             )
+            raise ExemplarWGSInternalIDMissing(wgs_sample_external_ids=missing)
+        return result
 
     def get_drc_ready_samples(self):
         """Returns a list of records that represent samples ready to be
         submitted by the DRC. If no samples are ready to be submitted, then
         an empty list is returned."""
         logger.info("Grabbing samples ready to submit to DRC")
-        url = self.base_url / "thresholdCriteriaMet"
+        url = self.base_url / "sequencingservice/thresholdCriteriaMet"
         return self._get(
             url,
             params={"eligibleFor": "DRC"},
@@ -53,7 +62,7 @@ class ExemplarAPI(WebService):
         If an issue is encountered, UnableToPushSampleSuccess is raised.
         """
         logger.info("Pushing success to DRC: %s", lane_barcode_or_merge_name)
-        url = self.base_url / "submissionstatus"
+        url = self.base_url / "sequencingservice/submissionstatus"
         payload = {
             "eventTimestamp": submission_date,
             "submissionValue": "True",

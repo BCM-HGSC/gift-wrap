@@ -1,7 +1,9 @@
 import os
+
 import pytest
 
 from gift_wrap.hgsc.exemplar import ExemplarAPI
+from gift_wrap.hgsc.exceptions import ExemplarWGSInternalIDMissing
 
 
 @pytest.fixture(name="exemplar_api")
@@ -13,11 +15,34 @@ def fixture_exemplar_api():
     yield ExemplarAPI(token, url, verify_ssl)
 
 
-def test_get_drc_ready_samples(exemplar_api: ExemplarAPI):
-    """Test that `get_samples` returns the expected list of samples when
-    calling the expected DRC url."""
-    results = exemplar_api.get_drc_ready_samples()
-    assert results
+def test_get_wgs_sample_internal_ids_success(exemplar_api: ExemplarAPI):
+    """Test that wgs_sample_internal_ids are returned as expected"""
+    wgs_sample_external_ids = [
+        "PG_CSI03.24.2022_02",
+        "STCSI040194",
+        "JW-mar15-csid-1-53",
+    ]
+    result = exemplar_api.get_wgs_sample_internal_ids(wgs_sample_external_ids)
+    assert dict(result) == {
+        "JW-mar15-csid-1-53": {"JW-mar15-bcmid-1-53"},
+        "PG_CSI03.24.2022_02": {"PG_SangerTest03.24.2022_02"},
+        "STCSI040194": {"STSII040194"},
+    }
+
+
+def test_get_wgs_sample_internal_ids_missing(exemplar_api: ExemplarAPI):
+    """Test that wgs_sample_internal_ids are returned as expected"""
+    wgs_sample_external_ids = ["PG_CSI03.24.2022_02", "STCSI040194", "made_up"]
+    with pytest.raises(ExemplarWGSInternalIDMissing) as exc:
+        exemplar_api.get_wgs_sample_internal_ids(wgs_sample_external_ids)
+    assert exc.value.wgs_sample_external_ids == {"made_up"}
+
+
+# def test_get_drc_ready_samples(exemplar_api: ExemplarAPI):
+#     """Test that `get_samples` returns the expected list of samples when
+#     calling the expected DRC url."""
+#     results = exemplar_api.get_drc_ready_samples()
+#     assert results
 
 
 # # TODO: Need to figure out how to do this better.
