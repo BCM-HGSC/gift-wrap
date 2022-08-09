@@ -567,12 +567,3 @@ min-public-methods=2
 # "BaseException, Exception".
 overgeneral-exceptions=BaseException,
                        Exception
-
-
-[pre-commit-hook]
-command=custom_pylint
-disable=
-    C0301,
-    C0114,
-    R0903,
-    W0511
