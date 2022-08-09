@@ -4,6 +4,7 @@ from typing import DefaultDict, List, Set
 
 from gift_wrap.hgsc.webservice import WebService
 from gift_wrap.hgsc.exceptions import (
+    ExemplarMultipleWGSInternalIDs,
     ExemplarWGSInternalIDMissing,
     HGSCWebServiceError,
 )
@@ -43,6 +44,10 @@ class ExemplarAPI(WebService):
                 "Not all samples returned wgs_sample_internal_ids! %s", missing
             )
             raise ExemplarWGSInternalIDMissing(wgs_sample_external_ids=missing)
+        if more_than_one_internal_id := {
+            sample for sample in result if len(sample) > 1
+        }:
+            raise ExemplarMultipleWGSInternalIDs(more_than_one_internal_id)
         return result
 
     def get_drc_ready_samples(self):
