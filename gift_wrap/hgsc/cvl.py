@@ -10,7 +10,6 @@ from gift_wrap.hgsc.exceptions import (
     CVLAPIMultipleWGSInternalIDs,
     HGSCWebServiceError,
 )
-from gift_wrap.hgsc.type_defs import APIResponseTypeDef
 from gift_wrap.hgsc.webservice import WebService
 
 
@@ -47,18 +46,20 @@ class CVLAPI(WebService):
             )
         return response["content"][0]["wgs_sample_internal_id"]
 
-    def post(self, manifest_type: str, s3_path: str, **kwargs) -> APIResponseTypeDef:
+    def post(self, manifest_group: str, s3_path: str, **kwargs) -> int:
         """Post to the CVL webservice"""
         logger.info("Submitting to CVL Webservice...")
         url = self.base_url / "putBatchAouData2Dynamodb"
+        data = {
+            "manifest_name": manifest_group.lower(),
+            "file_s3_location": s3_path,
+        }
         if "manifest_records" in kwargs:
             records = kwargs["manifest_records"]
             records_uploaded = 0
             for batch_number in range(0, len(records), BATCH_SIZE):
                 records_batch = records[batch_number : batch_number + BATCH_SIZE]
-                data = {
-                    "manifest_name": manifest_type.lower(),
-                    "file_s3_location": s3_path,
+                data |= {
                     "timestamp": str(datetime.now(timezone.utc).isoformat()),
                     "data": records_batch,
                 }
@@ -67,8 +68,6 @@ class CVLAPI(WebService):
                 records_uploaded += len(records_batch)
             return records_uploaded
         data = {
-            "manifest_name": manifest_type.lower(),
-            "file_s3_location": s3_path,
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
             **kwargs,
         }
