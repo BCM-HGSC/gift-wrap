@@ -16,6 +16,8 @@ from gift_wrap.hgsc.webservice import WebService
 
 logger = logging.getLogger(__name__)
 
+BATCH_SIZE = 100
+
 
 class CVLAPI(WebService):
     """CVL Webservice Wrapper"""
@@ -49,10 +51,26 @@ class CVLAPI(WebService):
         """Post to the CVL webservice"""
         logger.info("Submitting to CVL Webservice...")
         url = self.base_url / "putBatchAouData2Dynamodb"
+        if "manifest_records" in kwargs:
+            records = kwargs["manifest_records"]
+            records_uploaded = 0
+            for batch_number in range(0, len(records), BATCH_SIZE):
+                records_batch = records[batch_number : batch_number + BATCH_SIZE]
+                data = {
+                    "manifest_name": manifest_type.lower(),
+                    "file_s3_location": s3_path,
+                    "timestamp": str(datetime.now(timezone.utc).isoformat()),
+                    "data": records_batch,
+                }
+                logger.info("Submitting batch %s", batch_number)
+                self._post(url, json=data)
+                records_uploaded += len(records_batch)
+            return records_uploaded
         data = {
             "manifest_name": manifest_type.lower(),
             "file_s3_location": s3_path,
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
             **kwargs,
         }
-        return self._post(url, json=data)
+        self._post(url, json=data)
+        return 1
