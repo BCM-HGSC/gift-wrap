@@ -45,7 +45,9 @@ class ExemplarAPI(WebService):
             )
             raise ExemplarWGSInternalIDMissing(wgs_sample_external_ids=missing)
         if more_than_one_internal_id := {
-            sample for sample in result if len(sample) > 1
+            external_id
+            for external_id, internal_id in result.items()
+            if len(internal_id) > 1
         }:
             raise ExemplarMultipleWGSInternalIDs(more_than_one_internal_id)
         return result
