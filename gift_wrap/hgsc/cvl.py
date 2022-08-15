@@ -67,7 +67,7 @@ class CVLAPI(WebService):
                 self._post(url, json=data)
                 records_uploaded += len(records_batch)
             return records_uploaded
-        data = {
+        data |= {
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
             **kwargs,
         }
