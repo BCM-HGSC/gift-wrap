@@ -1,0 +1,4 @@
+# FILE: .bandit
+[bandit]
+exclude = tests
+skips = B603,B404
