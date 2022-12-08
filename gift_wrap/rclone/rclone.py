@@ -30,7 +30,9 @@ def convert_cloud_path(path: str) -> str:
     return f"{cloud_service}{bucket_name}/{key}"
 
 
-def create_rclone_config(credentials_path: str, working_dir: Path) -> str:
+def create_rclone_config(
+    credentials_path: str, working_dir: Path, region: str = "us-east-1"
+) -> str:
     """Creates the config for rclone"""
     gcp_project_id = get_gcp_project_id(credentials_path)
     config_path = working_dir / "intake-gvcf-tmp-rclone.conf"
@@ -39,6 +41,7 @@ def create_rclone_config(credentials_path: str, working_dir: Path) -> str:
             RCLONE_CONFIG_TEMPLATE.format(
                 GCP_PROJECT_ID=gcp_project_id,
                 GCP_CRED_PATH=credentials_path,
+                REGION=region,
             )
         )
     return str(config_path)
@@ -59,6 +62,7 @@ type = s3
 provider = AWS
 env_auth = true
 no_check_bucket = true
+region = {REGION}
 
 [gs]
 type = google cloud storage
