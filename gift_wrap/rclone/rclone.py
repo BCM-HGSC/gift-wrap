@@ -4,8 +4,9 @@ from subprocess import CompletedProcess
 from gift_wrap.utils.utils import load_json_file, subprocess_cmd
 
 
-def copy_to(source: str, dest: str, rclone_config: str) -> CompletedProcess:
+def copy_to(source: str, dest: str, rclone_config: str, *args) -> CompletedProcess:
     """Uses rclone to copy file from GCP to s3"""
+    extra_args = [f"--{arg}" for arg in args]
     command = [
         "rclone",
         "--config",
@@ -16,6 +17,7 @@ def copy_to(source: str, dest: str, rclone_config: str) -> CompletedProcess:
         "--checksum",
         "--error-on-no-transfer",
         "-vv",
+        *extra_args,
     ]
     return subprocess_cmd(command)
 
