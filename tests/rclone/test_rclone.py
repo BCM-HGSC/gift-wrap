@@ -5,7 +5,7 @@ from gift_wrap import rclone
 from gift_wrap.utils.utils import load_json_file
 
 
-def test_copy_to(tmp_path: Path):
+def test_copy_to_no_extra_args(tmp_path: Path):
     """Test that rclone correctly runs.
     NOTE: This needs rclone installed in the environment"""
     txt_file = tmp_path / "file.txt"
@@ -43,6 +43,7 @@ type = s3
 provider = AWS
 env_auth = true
 no_check_bucket = true
+region = us-east-1
 
 [gs]
 type = google cloud storage
