@@ -4,6 +4,7 @@ from typing import Dict
 
 import boto3
 from botocore.config import Config
+from mypy_boto3_dynamodb.type_defs import UpdateItemInputRequestTypeDef
 
 from gift_wrap.aws.utils import get_session_kwargs
 
@@ -29,6 +30,11 @@ class DynamoDBResource:
         """Put item"""
         logger.info("Uploading item to DynamoDB...")
         return self.table.put_item(Item=item)
+
+    def update_item(self, item: UpdateItemInputRequestTypeDef):
+        """Updates an item in DynamoDB"""
+        logger.debug("Updating item: %s in DynamoDB...", item)
+        return self.table.update_item(**item)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(table: {self.table.name})"
