@@ -51,10 +51,10 @@ class ExemplarMultipleWGSInternalIDs(ExemplarWGSSampleInternalIDError):
 
 
 @dataclass
-class ExemplarWGSInternalIDDupes(ExemplarWGSSampleInternalIDError):
-    """Raised if the given list of wgs_sample_internal_ids has duplicates"""
+class ExemplarWGSExternalIDDupes(ExemplarWGSSampleInternalIDError):
+    """Raised if the given list of wgs sample external ids has duplicates"""
 
-    message: str = "Duplicate ids found in the given list."
+    message: str = "Duplicate ids found in the given sample external id list."
 
 
 @dataclass
