@@ -3,26 +3,23 @@ import logging
 from pathlib import Path
 from typing import Iterator, Tuple
 
-import boto3
 from mypy_boto3_s3.service_resource import ObjectSummary
-from botocore.config import Config
 from yarl import URL
-from gift_wrap.aws.utils import get_session_kwargs
 
 from gift_wrap.utils.cloud_service import CloudService
+from .session import AWSSessionBase
 from .exceptions import NotAnS3Uri
 
 logger = logging.getLogger(__name__)
 
 
-class S3Resource(CloudService):
+class S3Resource(AWSSessionBase, CloudService):
     """S3Resource wrapper"""
 
-    def __init__(self, bucket_name: str) -> None:
-        config = Config(retries={"mode": "standard"})
+    def __init__(self, bucket_name: str, *args, **kwargs) -> None:
         self.bucket_name = bucket_name
-        kwargs = get_session_kwargs()
-        self.resource = boto3.Session(**kwargs).resource("s3", config=config)
+        super().__init__(*args, **kwargs)
+        self.resource = self.session.resource("s3", config=self.config)
 
     def delete_file(self, remote_file: str) -> None:
         """
