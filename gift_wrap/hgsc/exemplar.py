@@ -5,6 +5,7 @@ from typing import DefaultDict, List, Set
 from gift_wrap.hgsc.webservice import WebService
 from gift_wrap.hgsc.exceptions import (
     ExemplarMultipleWGSInternalIDs,
+    ExemplarWGSExternalIDDupes,
     ExemplarWGSInternalIDMissing,
     HGSCWebServiceError,
 )
@@ -31,6 +32,10 @@ class ExemplarAPI(WebService):
     ) -> DefaultDict(Set):
         """Given the wgs_sample_external_id, returns a mapping of wgs_sample_internal_ids wgs_sample_internal_id"""
         logger.info("Getting wgs_sample_internal_id...")
+        if dupes := {
+            x for x in wgs_sample_external_ids if wgs_sample_external_ids.count(x) > 1
+        }:
+            raise ExemplarWGSExternalIDDupes(dupes)
         url = self.base_url / "sampleservice/sampleInfoByCollaboratorSampleId"
         data = {"sample_ids": wgs_sample_external_ids}
         response = self._post(url, json=data)
