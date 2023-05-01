@@ -3,7 +3,10 @@ import os
 import pytest
 
 from gift_wrap.hgsc.exemplar import ExemplarAPI
-from gift_wrap.hgsc.exceptions import ExemplarWGSInternalIDMissing
+from gift_wrap.hgsc.exceptions import (
+    ExemplarWGSInternalIDMissing,
+    ExemplarWGSExternalIDDupes,
+)
 
 
 @pytest.fixture(name="exemplar_api")
@@ -28,6 +31,14 @@ def test_get_wgs_sample_internal_ids_success(exemplar_api: ExemplarAPI):
         "PG_CSI03.24.2022_02": {"PG_SangerTest03.24.2022_02"},
         "STCSI040194": {"STSII040194"},
     }
+
+
+def test_get_wgs_sample_internal_ids_duplicates(exemplar_api: ExemplarAPI):
+    """Test that wgs_sample_internal_ids are returned as expected"""
+    wgs_sample_external_ids = ["PG_CSI03.24.2022_02", "STCSI040194", "STCSI040194"]
+    with pytest.raises(ExemplarWGSExternalIDDupes) as exc:
+        exemplar_api.get_wgs_sample_internal_ids(wgs_sample_external_ids)
+    assert exc.value.wgs_sample_external_ids == {"STCSI040194"}
 
 
 def test_get_wgs_sample_internal_ids_missing(exemplar_api: ExemplarAPI):

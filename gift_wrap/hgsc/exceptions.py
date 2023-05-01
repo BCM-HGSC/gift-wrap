@@ -51,6 +51,13 @@ class ExemplarMultipleWGSInternalIDs(ExemplarWGSSampleInternalIDError):
 
 
 @dataclass
+class ExemplarWGSExternalIDDupes(ExemplarWGSSampleInternalIDError):
+    """Raised if the given list of wgs sample external ids has duplicates"""
+
+    message: str = "Duplicate ids found in the given sample external id list."
+
+
+@dataclass
 class HGSCWebServiceError(Exception):
     """Raised when sample failed to upload"""
 
