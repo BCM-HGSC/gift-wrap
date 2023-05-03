@@ -1,4 +1,6 @@
 """Test for gcp.py"""
+
+import contextlib
 import os
 from pathlib import Path
 
@@ -14,26 +16,23 @@ INPUT_FILE_NAME = "test_file.txt"
 def fixture_bucket_name(pytestconfig):
     """Returns the GCP bucket name. Prefers the given one by command line if
     looks in env"""
-    bucket_name = pytestconfig.getoption("gcp_bucket")
-    if not bucket_name:
+    if bucket_name := pytestconfig.getoption("gcp_bucket"):
+        return bucket_name
+    else:
         raise ValueError(
             "Missing GCP bucket name. Pass it by command line or have in .env"
         )
-    return bucket_name
 
 
 @pytest.fixture(name="gcp_client")
 def fixture_gcp_client(bucket_name: str, prefix: str):
     """Fixture that returns a StorageClient and cleans up afterwards."""
-    credentials_file = os.environ["GCP_CREDENTIALS_PATH"]
-    client = StorageClient(bucket_name, credentials_file=credentials_file)
+    client = StorageClient(bucket_name)
     yield client
     blobs = client.list_files(prefix=prefix)
-    try:
+    with contextlib.suppress(Exception):
         for blob in blobs:
             blob.delete()
-    except Exception:
-        pass
 
 
 @pytest.fixture(name="populated_gcp_client")
