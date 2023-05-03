@@ -1,1 +1,1 @@
-from .rclone import convert_cloud_path, copy_to, create_rclone_config
+from .rclone import RClone, create_generic_config
