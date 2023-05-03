@@ -1,6 +1,5 @@
 """Interfacing with Google Cloud Platform."""
 import logging
-import json
 from typing import Iterator
 
 from google.cloud import storage
@@ -15,12 +14,8 @@ DEFAULT_TIMEOUT = 60
 class StorageClient(CloudService):
     """Wrapper for GCP Client"""
 
-    def __init__(self, bucket_name: str, credentials_file: str) -> None:
-        try:
-            self.client = storage.Client.from_service_account_json(credentials_file)
-        except json.decoder.JSONDecodeError as err:
-            logger.error("GCP Credentials file is empty or not valid JSON.")
-            raise Exception("InvalidGCPJSONFile") from err
+    def __init__(self, bucket_name: str) -> None:
+        self.client = storage.Client()
         self.bucket = self.client.get_bucket(bucket_name)
 
     def delete_file(self, remote_file: str) -> None:
