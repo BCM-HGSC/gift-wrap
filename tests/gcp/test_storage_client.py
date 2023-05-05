@@ -1,7 +1,6 @@
 """Test for gcp.py"""
 
 import contextlib
-import os
 from pathlib import Path
 
 import pytest
