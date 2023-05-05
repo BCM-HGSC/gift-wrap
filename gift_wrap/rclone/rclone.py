@@ -29,6 +29,20 @@ class RClone:
         command.extend(["copyurl", source, dest, *self._required_args, *args])
         return self._submit_command(command)
 
+    def list_contents(self, source: str, *args) -> tuple[dict[str, list]]:
+        """Uses rclone to list objects and directories in the given path"""
+        command = self._initialize_command()
+        command.extend(["lsf", source, *args])
+        result = self._submit_command(command)
+        contents = {"files": [], "directories": []}
+        if result.stdout:
+            for line in result.stdout.split("\n"):
+                if line and not line.endswith("/"):
+                    contents["files"].append(line)
+                elif line and line.endswith("/"):
+                    contents["directories"].append(line)
+        return contents
+
     def _initialize_command(self) -> list[str]:
         """The first set of commands to occur before the user submitted ones."""
         command = ["rclone"]
