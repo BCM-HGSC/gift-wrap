@@ -56,13 +56,12 @@ def test_list_contents_nonempty(
     file_002 = tmp_path / "file002-rclone-test_list_contents.txt"
     file_002.write_text("Tests file")
     sub_dir = "test_list_contents"
-    gcp_client.upload_file(
-        str(file_002), f"{prefix}/{sub_dir}/file002-rclone-test_list_contents.txt"
-    )
+    remote_path = f"{prefix}/{sub_dir}/file002-rclone-test_list_contents.txt"
+    gcp_client.upload_file(str(file_002), remote_path)
     dest = f"gs://{gcp_client.bucket.name}/{prefix}"
     result = rclone_wrapper.list_contents(dest)
-    assert result["files"] == [file_one_name]
-    assert result["directories"] == [f"{sub_dir}/"]
+    assert result["files"][0]["Path"] == f"{dest}/{file_one_name}"
+    assert result["directories"][0]["Path"] == f"{dest}/{sub_dir}"
 
 
 def test_list_contents_empty(

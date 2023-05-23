@@ -1,6 +1,7 @@
 import subprocess
 import logging
 from pathlib import Path
+import json
 from subprocess import CompletedProcess
 from typing import Optional
 
@@ -29,19 +30,27 @@ class RClone:
         command.extend(["copyurl", source, dest, *self._required_args, *args])
         return self._submit_command(command)
 
-    def list_contents(self, source: str, *args) -> tuple[dict[str, list]]:
+    def list_contents(self, source: str, *args) -> dict[str, list]:
         """Uses rclone to list objects and directories in the given path"""
         command = self._initialize_command()
-        command.extend(["lsf", source, *args])
+        command.extend(["lsjson", source, *args])
         result = self._submit_command(command)
         contents = {"files": [], "directories": []}
         if result.stdout:
-            for line in result.stdout.split("\n"):
-                if line and not line.endswith("/"):
-                    contents["files"].append(line)
-                elif line and line.endswith("/"):
+            text = json.loads(result.stdout)
+            for line in text:
+                line["Path"] = f"{source}/{line['Path']}"
+                if _ := line.pop("IsDir"):
                     contents["directories"].append(line)
+                    continue
+                contents["files"].append(line)
         return contents
+
+    def move(self, source: str, dest: str, *args) -> CompletedProcess:
+        """Moves a directory or file to destination."""
+        command = self._initialize_command()
+        command.extend(["move", source, dest, *args])
+        return self._submit_command(command)
 
     def _initialize_command(self) -> list[str]:
         """The first set of commands to occur before the user submitted ones."""
