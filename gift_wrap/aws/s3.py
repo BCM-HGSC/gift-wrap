@@ -97,6 +97,15 @@ class S3Resource(AWSSessionBase, CloudService):
                 )
         logger.info("S3: Directory uploaded to S3.")
 
+    def move_file(self, source_prefix: str, dest_prefix: str):
+        """Moves a file"""
+        bucket = self.resource.Bucket(self.bucket_name)
+        source_obj = bucket.Object(source_prefix)
+        copy_source = {"Bucket": source_obj.bucket_name, "Key": source_obj.key}
+        dest_obj = bucket.Object(dest_prefix)
+        dest_obj.copy(copy_source)
+        source_obj.delete()
+
 
 #########
 # Utils #
