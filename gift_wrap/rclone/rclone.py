@@ -64,7 +64,7 @@ class RClone:
         try:
             return subprocess_cmd(command)
         except subprocess.CalledProcessError as err:
-            if "Unchanged skipping" in err.stderr:
+            if "Unchanged skipping" in err.stderr or "file already exist" in err.stderr:
                 raise exceptions.FileAlreadyExist from err
             if "There was nothing to transfer" in err.stderr:
                 raise exceptions.FileDoesNotExist from err
