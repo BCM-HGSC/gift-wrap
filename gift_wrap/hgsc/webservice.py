@@ -1,17 +1,15 @@
 """ Generic class for an HGSC web service to inherit """
-from distutils.util import strtobool
 import logging
 import json
 from typing import Optional, Union
 
-from requests.exceptions import HTTPError
-
 import yarl
+from requests.exceptions import HTTPError
 
 from gift_wrap.utils.http import http
 from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 from gift_wrap.hgsc.type_defs import APIResponseTypeDef
-
+from gift_wrap.utils.strtobool import strtobool
 
 logger = logging.getLogger(__name__)
 
