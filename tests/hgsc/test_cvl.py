@@ -3,7 +3,11 @@ import os
 import pytest
 
 from gift_wrap.hgsc.cvl import CVLAPI
-from gift_wrap.hgsc.exceptions import HGSCWebServiceError
+from gift_wrap.hgsc.exceptions import (
+    CVLAPIIssuesGettingInternalID,
+    CVLAPIMultipleWGSInternalIDs,
+    HGSCWebServiceError,
+)
 from gift_wrap.utils.token import get_token
 
 
@@ -250,14 +254,14 @@ def test_cvl_api_get_wgs_sample_internal_id_failure(cvl_api: CVLAPI):
     - no internal id is found
     """
     wgs_sample_external_id = "test-wgs_sample_external_id-002"
-    with pytest.raises(HGSCWebServiceError) as err:
+    with pytest.raises(CVLAPIMultipleWGSInternalIDs) as err:
         cvl_api.get_wgs_sample_internal_id(wgs_sample_external_id)
     assert (
         err.value.message
         == f"Multiple wgs_sample_internal_ids were returned for {wgs_sample_external_id}"
     )
     wgs_sample_external_id = "test-wgs_sample_external_id-004"
-    with pytest.raises(HGSCWebServiceError) as err:
+    with pytest.raises(CVLAPIIssuesGettingInternalID) as err:
         cvl_api.get_wgs_sample_internal_id(wgs_sample_external_id)
     assert (
         err.value.message
