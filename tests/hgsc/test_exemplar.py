@@ -12,9 +12,9 @@ from gift_wrap.hgsc.exceptions import (
 @pytest.fixture(name="exemplar_api")
 def fixture_exemplar_api():
     """Yields an authenticated ExemplarLims client"""
-    token = os.environ["EXEMPLAR_TOKEN"]
-    url = os.environ["EXEMPLAR_URL"]
-    verify_ssl = os.environ["EXEMPLAR_SSL"]
+    token = os.environ["EXEMPLAR_LIMS_TOKEN"]
+    url = os.environ["EXEMPLAR_LIMS_URL"]
+    verify_ssl = os.environ["EXEMPLAR_LIMS_VERIFY_SSL"]
     yield ExemplarAPI(token, url, verify_ssl)
 
 

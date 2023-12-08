@@ -71,5 +71,4 @@ class CVLAPI(WebService):
             "timestamp": str(datetime.now(timezone.utc).isoformat()),
             **kwargs,
         }
-        self._post(url, json=data)
-        return 1
+        return self._post(url, json=data)
