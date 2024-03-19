@@ -1,12 +1,10 @@
 """Test for sample_tracker.py"""
+
 import os
-from unittest.mock import patch, MagicMock
 
 import pytest
 
-
 from gift_wrap.hgsc.sample_tracker import SampleTracker
-from gift_wrap.hgsc.exceptions import HGSCWebServiceError
 from gift_wrap.hgsc.token import get_token
 
 
